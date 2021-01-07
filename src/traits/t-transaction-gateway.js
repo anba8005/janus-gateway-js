@@ -1,4 +1,3 @@
-var Promise = require('bluebird');
 var JanusError = require('../error');
 var Transaction = require('../transaction');
 var Transactions = require('../transactions');
