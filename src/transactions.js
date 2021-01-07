@@ -1,4 +1,3 @@
-var Promise = require('bluebird');
 var Transaction = require('./transaction');
 
 /**

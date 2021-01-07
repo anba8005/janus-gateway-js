@@ -1,4 +1,3 @@
-var Promise = require('bluebird');
 var Helpers = require('../helpers');
 var JanusPluginMessage = require('../janus-plugin-message');
 var MediaEntityPlugin = require('./media-entity-plugin');
@@ -105,12 +104,16 @@ MediaAudioPlugin.prototype.configure = function(options, jsep) {
  */
 MediaAudioPlugin.prototype.offerStream = function(stream, offerOptions, configureOptions) {
   var self = this;
-  return Promise
-    .try(function() {
-      self.createPeerConnection();
-      stream.getAudioTracks().forEach(function(track) {
-        self.addTrack(track, stream);
-      });
+  return new Promise((resolve,reject) => {
+      try {
+        self.createPeerConnection();
+        stream.getAudioTracks().forEach(function(track) {
+          self.addTrack(track, stream);
+        });
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
     })
     .then(function() {
       return self.createOffer(offerOptions);

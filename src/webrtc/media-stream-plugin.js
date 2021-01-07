@@ -1,4 +1,3 @@
-var Promise = require('bluebird');
 var Helpers = require('../helpers');
 var JanusPluginMessage = require('../janus-plugin-message');
 var MediaEntityPlugin = require('./media-entity-plugin');
@@ -48,7 +47,9 @@ MediaStreamPlugin.prototype._watch = function(id, watchOptions, answerOptions) {
         throw new Error('Expect offer response on watch request')
       }
       plugin.setCurrentEntity(id);
-      return plugin._offerAnswer(jsep, answerOptions).return(response);
+      return plugin._offerAnswer(jsep, answerOptions).then(function() {
+        return response;
+      });;
     });
 };
 
@@ -128,9 +129,13 @@ MediaStreamPlugin.prototype.connect = function(id, watchOptions, answerOptions) 
  */
 MediaStreamPlugin.prototype._offerAnswer = function(jsep, answerOptions) {
   var self = this;
-  return Promise
-    .try(function() {
-      self.createPeerConnection();
+    return new Promise((resolve,reject) => {
+      try {
+        self.createPeerConnection();
+        resolve();
+      } catch(e) {
+        reject(e);
+      }
     })
     .then(function() {
       return self.createAnswer(jsep, answerOptions);

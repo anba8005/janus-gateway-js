@@ -1,4 +1,3 @@
-var Promise = require('bluebird');
 var Helpers = require('./helpers');
 var EventEmitter = require('./event-emitter');
 var TTransactionGateway = require('./traits/t-transaction-gateway');
@@ -173,15 +172,19 @@ Session.prototype.processIncomeMessage = function(incomeMessage) {
   }
 
   var self = this;
-  return Promise
-    .try(function() {
-      if (pluginId && !self.hasPlugin(pluginId)) {
-        throw new Error('Invalid plugin [' + pluginId + ']');
+  return new Promise((resolve, reject) => {
+      try {
+        if (pluginId && !self.hasPlugin(pluginId)) {
+          throw new Error('Invalid plugin [' + pluginId + ']');
+        }
+        if ('timeout' === incomeMessage.get('janus')) {
+          resolve(self._onTimeout(incomeMessage));
+        } else {
+          resolve(self.defaultProcessIncomeMessage(incomeMessage));
+        }
+      } catch (e) {
+        reject(e);
       }
-      if ('timeout' === incomeMessage.get('janus')) {
-        return self._onTimeout(incomeMessage);
-      }
-      return self.defaultProcessIncomeMessage(incomeMessage);
     })
     .then(function() {
       self.emit('message', incomeMessage);

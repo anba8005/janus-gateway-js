@@ -1,8 +1,6 @@
-var Promise = require('bluebird');
 var webrtcsupport = require('webrtcsupport');
 var Helpers = require('../helpers');
 var Plugin = require('../plugin');
-var MediaDevicesShim = require('./media-devices-shim');
 
 /**
  * @inheritDoc
@@ -91,31 +89,6 @@ MediaPlugin.prototype.addTrack = function(track, stream) {
 };
 
 /**
- * @param {MediaStreamConstraints} constraints
- * @returns {Promise}
- * @fulfilled {MediaStream} stream
- */
-MediaPlugin.prototype.getUserMedia = function(constraints) {
-  this.emit('consent-dialog:start');
-  var self = this;
-  var promise = MediaDevicesShim.getUserMedia(constraints);
-  return promise
-    .then(function(stream) {
-      self.emit('consent-dialog:stop', {stream: stream});
-      return stream;
-    })
-    .catch(function(error) {
-      self.emit('consent-dialog:stop', {error: error});
-      throw error;
-    })
-    .finally(function() {
-      if (promise.isCancelled()) {
-        self.emit('consent-dialog:stop');
-      }
-    });
-};
-
-/**
  * @see https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createOffer#RTCOfferOptions_dictionary
  * @typedef {Object} RTCOfferOptions
  */
@@ -142,9 +115,14 @@ MediaPlugin.prototype.createOffer = function(options) {
  */
 MediaPlugin.prototype.createAnswer = function(jsep, options) {
   var self = this;
-  return Promise.try(function() {
-    return self.setRemoteSDP(jsep);
-  }).then(function() {
+  return new Promise((resolve,reject) => {
+    try {
+      resolve(self.setRemoteSDP(jsep));
+    } catch (e) {
+      reject(e);
+    }
+  })
+  .then(function() {
     return self._createSDP('createAnswer', options);
   });
 };
@@ -184,8 +162,12 @@ MediaPlugin.prototype._createSDP = function(party, options) {
 
 MediaPlugin.prototype.processIncomeMessage = function(message) {
   var self = this;
-  return Promise.try(function() {
-      return MediaPlugin.super_.prototype.processIncomeMessage.call(self, message);
+  return new Promise((resolve, reject) => {
+      try {
+        resolve(MediaPlugin.super_.prototype.processIncomeMessage.call(self, message));
+      } catch(e) {
+        reject(e);
+      }
     })
     .then(function(result) {
       var janusType = message['janus'];

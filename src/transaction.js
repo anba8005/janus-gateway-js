@@ -1,5 +1,3 @@
-var Promise = require('bluebird');
-
 /**
  * @callback Transaction~callback
  * @returns {Promise}

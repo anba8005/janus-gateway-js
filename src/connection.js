@@ -1,4 +1,3 @@
-var Promise = require('bluebird');
 var Helpers = require('./helpers');
 var EventEmitter = require('./event-emitter');
 var TTransactionGateway = require('./traits/t-transaction-gateway');
@@ -97,7 +96,10 @@ Connection.prototype.getOptions = function() {
  * @fulfilled {Connection} connection - when it is opened
  */
 Connection.prototype.open = function() {
-  return this._websocketConnection.open(this._address, 'janus-protocol').return(this);
+  const self = this;
+  return this._websocketConnection.open(this._address, 'janus-protocol').then(function() {
+    return self;
+ });
 };
 
 /**
@@ -223,13 +225,16 @@ Connection.prototype.processIncomeMessage = function(incomeMessage) {
     return this.getSession(sessionId).processIncomeMessage(incomeMessage);
   }
   var self = this;
-  return Promise
-    .try(function() {
+  return new Promise((resolve,reject) => {
+    try {
       if (sessionId && !self.hasSession(sessionId)) {
         throw new Error('Invalid session: [' + sessionId + ']');
       }
-      return self.defaultProcessIncomeMessage(incomeMessage);
-    });
+      resolve(self.defaultProcessIncomeMessage(incomeMessage));
+    } catch (e) {
+      reject(e);
+    }
+  })
 };
 
 /**

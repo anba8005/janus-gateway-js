@@ -1,4 +1,3 @@
-var Promise = require('bluebird');
 var Helpers = require('./helpers');
 var EventEmitter = require('./event-emitter');
 var JanusError = require('./error');
@@ -121,13 +120,17 @@ Plugin.prototype.processOutcomeMessage = function(message) {
  */
 Plugin.prototype.processIncomeMessage = function(incomeMessage) {
   var self = this;
-  return Promise
-    .try(function() {
-      incomeMessage = new JanusPluginMessage(incomeMessage.getPlainMessage(), self);
-      if ('detached' === incomeMessage.get('janus')) {
-        return self._onDetached();
+  return new Promise((resolve,reject) => {
+      try {
+        incomeMessage = new JanusPluginMessage(incomeMessage.getPlainMessage(), self);
+        if ('detached' === incomeMessage.get('janus')) {
+          resolve(self._onDetached());
+        } else {
+          resolve(self.defaultProcessIncomeMessage(incomeMessage));
+        }
+      } catch (e) {
+        reject(e);
       }
-      return self.defaultProcessIncomeMessage(incomeMessage);
     })
     .then(function() {
       self.emit('message', incomeMessage);
