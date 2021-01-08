@@ -6,7 +6,7 @@ let SessionDescription = window.RTCSessionDescription;
 let IceCandidate = window.RTCIceCandidate;
 
 if (typeof navigator != 'undefined' && navigator.product == 'ReactNative') {
-  const wrtc = require('react-native-web');
+  const wrtc = require('react-native-webrtc');
   PeerConnection = wrtc.RTCPeerConnection;
   SessionDescription = wrtc.RTCSessionDescription;
   IceCandidate = wrtc.RTCIceCandidate;
