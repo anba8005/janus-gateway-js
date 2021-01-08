@@ -163,6 +163,22 @@ StreamingPlugin.prototype.recording = function(mountpointId, options) {
 };
 
 /**
+ * @param {Object} [options]
+ * @param {boolean} [options.muted]
+ * @param {number} [options.quality]
+ * @param {RTCSessionDescription} [jsep]
+ * @returns {Promise}
+ * @fulfilled {JanusPluginMessage} response
+ */
+StreamingPlugin.prototype.configure = function(options) {
+  var body = Helpers.extend({
+    request: 'configure'
+  }, options);
+  var message = {body: body};
+  return this.sendWithTransaction(message);
+};
+
+/**
  * @inheritDoc
  */
 StreamingPlugin.prototype.getResponseAlias = function() {
