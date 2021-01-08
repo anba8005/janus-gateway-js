@@ -1,4 +1,3 @@
-var WebSocket = require('websocket').w3cwebsocket;
 var EventEmitter = require('./event-emitter');
 var Helpers = require('./helpers');
 
