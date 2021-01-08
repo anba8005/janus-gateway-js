@@ -1,6 +1,16 @@
-var webrtcsupport = require('webrtcsupport');
 var Helpers = require('../helpers');
 var Plugin = require('../plugin');
+
+let PeerConnection = window.RTCPeerConnection;
+let SessionDescription = window.RTCSessionDescription;
+let IceCandidate = window.RTCIceCandidate;
+
+if (typeof navigator != 'undefined' && navigator.product == 'ReactNative') {
+  const wrtc = require('react-native-web');
+  PeerConnection = wrtc.RTCPeerConnection;
+  SessionDescription = wrtc.RTCSessionDescription;
+  IceCandidate = wrtc.RTCIceCandidate;
+}
 
 /**
  * @inheritDoc
@@ -43,7 +53,7 @@ MediaPlugin.prototype.createPeerConnection = function(options) {
     Helpers.extend(constraints, options.constraints);
   }
 
-  this._pc = new webrtcsupport.PeerConnection(config, constraints);
+  this._pc = new PeerConnection(config, constraints);
   this._addPcEventListeners();
   return this._pc;
 };
@@ -132,7 +142,7 @@ MediaPlugin.prototype.createAnswer = function(jsep, options) {
  * @returns {Promise}
  */
 MediaPlugin.prototype.setRemoteSDP = function(jsep) {
-  return this._pc.setRemoteDescription(new webrtcsupport.SessionDescription(jsep));
+  return this._pc.setRemoteDescription(new SessionDescription(jsep));
 };
 
 /**
@@ -187,7 +197,7 @@ MediaPlugin.prototype.processIncomeMessage = function(message) {
  * @param {Object} incomeMessage
  */
 MediaPlugin.prototype._onTrickle = function(incomeMessage) {
-  var candidate = new webrtcsupport.IceCandidate(incomeMessage['candidate']);
+  var candidate = new IceCandidate(incomeMessage['candidate']);
   this._pc.addIceCandidate(candidate).catch(function(error) {
     this.emit('pc:error', error);
   }.bind(this));
