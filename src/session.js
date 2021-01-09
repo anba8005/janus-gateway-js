@@ -252,7 +252,7 @@ Session.prototype._destroy = function() {
     return Promise.resolve();
   }
   this._stopKeepAlive();
-  return Promise.map(this.getPluginList(), function(plugin) {
+  return Helpers.promiseMap(this.getPluginList(), function(plugin) {
     return plugin.cleanup();
   }).finally(function() {
     this._plugins = {};

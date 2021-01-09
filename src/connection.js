@@ -108,7 +108,7 @@ Connection.prototype.open = function() {
 Connection.prototype.close = function() {
   if (this._websocketConnection.isOpened()) {
     var self = this;
-    return Promise.map(this.getSessionList(), function(session) {
+    return Helpers.promiseMap(this.getSessionList(), function(session) {
       return session.cleanup();
     }).then(function() {
       return self._websocketConnection.close();

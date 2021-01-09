@@ -32,6 +32,17 @@ var Helpers = {
         configurable: true
       }
     });
+  },
+  /**
+   * @param {Array} list
+   * @param {Function} predicate
+   */
+  promiseMap: function(list, predicate) {
+    var promises = [];
+    for (var i = 0; i < list.length; i++) {
+      promises.push(predicate(list[i]));
+    }
+    return Promise.all(promises);
   }
 };
 
