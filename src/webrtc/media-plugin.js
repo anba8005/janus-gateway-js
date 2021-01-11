@@ -212,7 +212,7 @@ MediaPlugin.prototype._onHangup = function(incomeMessage) {
 
 MediaPlugin.prototype.closePeerConnection = function() {
   if (this._pc) {
-    this._stopLocalMedia();
+    // this._stopLocalMedia(); - DO NOT STOP STREAM - WILL DO MANUALLY :)
     Object.keys(this._pcListeners)
       .forEach(function(event) {
         this._removePcEventListener(event);
