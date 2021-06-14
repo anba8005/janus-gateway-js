@@ -20,10 +20,10 @@ function Plugin(session, name, id) {
   this._name = name;
   this._id = id;
 
-  var plugin = this;
-  session.on('destroy', function() {
-    plugin._detach();
-  });
+  this._destroyListener = function () {
+    this._detach();
+  }.bind(this);
+  session.on("destroy", this._destroyListener);
 }
 
 Helpers.inherits(Plugin, EventEmitter);
@@ -90,6 +90,7 @@ Plugin.prototype.send = function(message) {
  */
 Plugin.prototype.detach = function() {
   if (this._session) {
+    this._session.off("destroy", this._destroyListener);
     return new Promise(function(resolve, reject) {
       this.once('detach', resolve);
       this.sendWithTransaction({janus: 'detach'}).catch(reject);
