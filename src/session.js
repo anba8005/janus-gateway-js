@@ -279,6 +279,8 @@ Session.prototype._isNaturalNumber = function(value) {
  */
 Session.prototype._startKeepAlive = function() {
   var keepAlive = this._connection.getOptions()['keepalive'];
+  var settimeout = this._connection.getOptions()['setTimeout'];
+  var cleartimeout = this._connection.getOptions()['clearTimeout'];
   if (this._isNaturalNumber(keepAlive) && keepAlive < 59000) {
     this._keepAlivePeriod = keepAlive;
   } else {
@@ -293,7 +295,7 @@ Session.prototype._startKeepAlive = function() {
         }
         throw error;
       });
-  }, this._keepAlivePeriod);
+  }, this._keepAlivePeriod, settimeout, cleartimeout);
   this._keepAliveTimer.start();
 };
 
